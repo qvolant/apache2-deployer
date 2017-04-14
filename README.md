@@ -1,6 +1,9 @@
 # apache2-deployer
 Easier website deployment with user based folders for Apache 2
 
+# Fork
+Forked to work with apache2 module mpm-itk
+
 # Functionalities
 * Creates a user with its home folder in any desired location
 * Creates web folder inside user's folder
@@ -18,7 +21,7 @@ Should work with most Debian based distros with Apache2 installed
 
 #### Get the script
 ````bash
-wget https://raw.githubusercontent.com/UltimateByte/apache2-deployer/master/apache2-deployer.sh
+wget https://raw.githubusercontent.com/qvolant/apache2-deployer/master/apache2-deployer.sh
 ````
 #### Edit settings part if needed
 ````bash
@@ -54,9 +57,8 @@ Welcome!
 Please, take a moment to review your settings:
 
 User: terageek will be created
-Web directory: /websites/terageek/public_html will be created
-Permissions will be fixed in /websites/terageek/public_html
-Umask will be set to umask 007 for terageek if possible
+Web directory: /websites/terageek/www will be created
+Permissions will be fixed in /websites/terageek/www
 Vhost: /etc/apache2/sites-available/terageek.org.conf will be created and enabled
 
 Continue? [Y/n]y
@@ -73,22 +75,14 @@ Retype new UNIX password:
 passwd: password updated successfully
 [OK] Password set!
 
-##################### Fixing Umask ####################
-
-Fixing user umask (default permissions on files)
-[OK] Umask umask 007 set!
-
 ################## Directory Creation ##################
 
 Creating the web directory...
-mkdir: created directory ‘/websites/terageek/public_html’
+mkdir: created directory ‘/websites/terageek/www’
 [OK] Directory created!
 
 Applying correct ownership & permissions to the website folder...
 [OK] Ownership & permissions set!
-
-Adding terageek group to www-data...
-[OK] Added user group to www-data!
 
 Restarting apache2 to enable group modifications...
 [OK] apache2 restarted!
@@ -114,12 +108,12 @@ Reloading apache2 to apply config...
 ###################### Job Done  #######################
 ########################################################
 
-Info! Time to add your website into /websites/terageek/public_html
+Info! Time to add your website into /websites/terageek/www
 Info! Time to make terageek.org point to this machine
 
 ###################### Credits  ########################
 UltimateByte: Main development
-BassSpleen: Idea and initial script
+Quentin Volant: Idea, initial script and apache itk module fork
 [OK] We wish you the best!
 ````
 
@@ -140,27 +134,19 @@ Welcome!
 Please, take a moment to review your settings:
 
 User: terageek exists and will not be created
-Web directory: /websites/terageek/public_html will be created if it doesn't exist
-Permissions will be fixed in /websites/terageek/public_html
-Umask will be set to umask 007 for terageek if possible
+Web directory: /websites/terageek/www will be created if it doesn't exist
+Permissions will be fixed in /websites/terageek/www
 
 Continue? [Y/n]y
 Let's go!
 
-##################### Fixing Umask ####################
-
-Info! It appears that umask 007 is already set for terageek
-
 ################## Directory Creation ##################
 
 Creating the web directory...
-Info! /websites/terageek/public_html already exists
+Info! /websites/terageek/www already exists
 
 Applying correct ownership & permissions to the website folder...
 [OK] Ownership & permissions set!
-
-Adding terageek group to www-data...
-[OK] Added user group to www-data!
 
 Restarting apache2 to enable group modifications...
 [OK] apache2 restarted!
@@ -170,16 +156,15 @@ Restarting apache2 to enable group modifications...
 VirtualHost already exists!
 It won't be touched.
 
-
 ########################################################
 ###################### Job Done  #######################
 ########################################################
 
-Info! Time to add your website into /websites/terageek/public_html
+Info! Time to add your website into /websites/terageek/www
 Info! Time to make terageek.org point to this machine
 
 ###################### Credits  ########################
 UltimateByte: Main development
-BassSpleen: Idea and initial script
+Quentin Volant: Idea, initial script and apache itk module fork
 [OK] We wish you the best!
 ````

@@ -1,15 +1,15 @@
 #!/bin/bash
 # Apache2 website deployment
-# Authors: UltimateByte, BassSpleen
-# Website: https://www.terageek.org
+# Authors: UltimateByte, Quentin Volant
+# Website: https://www.terageek.org, https://www.quentinvolant.fr
 # Description: Creates required files and folders to deploy an apache2 website in one command
-# Version: 0.2
- 
+# Version: 0.2-itk
+
 ### SETTINGS ##
 # The parent folder for your user's home directory (usually /home)
 homedir="/home"
 # The name of you website's folder (usually public_html or www)
-webdir="public_html"
+webdir="www"
 # Default shell defined with usermod -s (usually /bin/bash)
 usershell="/bin/bash"
 
@@ -20,9 +20,6 @@ usershell="/bin/bash"
 # Misc Variables
 selfname="$(basename "$(readlink -f "${BASH_SOURCE[0]}")")"
 apache_sites="/etc/apache2/sites-available"
-apacheprocess="www-data"
-defumask="#umask 022"
-tumask="umask 007"
 
 # Check that the user inputted two arguments
 if [ -z "$1" ] || [ -z "$2" ]; then
@@ -72,7 +69,7 @@ fn_check_vars(){
 		echo "Please, set a valid webdir"
 	sleep 2
 	fi
- 
+
 	# Checking that Apache2 websites-available folder exists
 	if [ -d "${apache_sites}" ]; then
 		check_apachedir=0
@@ -82,7 +79,7 @@ fn_check_vars(){
 		echo "Please, install apache2"
 		sleep 2
 	fi
- 
+
 	# Check summ up
 	if [ "${check_homedir}" == "1" ] || [ "${check_webdir}" == "1" ] || [ "${check_apachedir}" == "1" ]; then
 		echo "Info! Errors found, exiting..."
@@ -135,7 +132,6 @@ fn_welcome_prompt(){
 		exit 1
 	fi
 	echo "Permissions will be fixed in ${targetdir}"
-	echo "Umask will be set to ${tumask} for ${username} if possible"
 	if [ ! -f "${apache_sites}/${domain}.conf" ]; then
 	echo "Vhost: ${apache_sites}/${domain}.conf will be created and enabled"
 	fi
@@ -169,26 +165,6 @@ fn_add_user(){
 	fi
 }
 
-fn_fix_umask(){
-	echo ""
-	echo "##################### Fixing Umask ####################"
-	echo ""	
-	sleep 2
-	if [ -f "${userdir}/.profile" ]; then
-		if [ "$(cat "${userdir}/.profile" | grep "${defumask}")" ]; then
-			echo "Fixing user umask (default permissions on files)"
-			sleep 1
-			sed -i "s/${defumask}/${tumask}/g" "${userdir}"/.profile
-			echo "[OK] Umask ${tumask} set!"
-		elif [ "$(cat "${userdir}/.profile" | grep "${tumask}")" ]; then
-			echo "Info! It appears that ${tumask} is already set for ${username}"
-		else
-			echo "[Warning] Default umask not found, no change will be applied"
-		fi
-	else
-		echo "[Warning] ${userdir}/.profile doesn't exist, cannot determine Umask"
-	fi
-}
 
 # Creating the web directory and applying permissions
 fn_web_directory(){
@@ -209,13 +185,9 @@ fn_web_directory(){
 	sleep 1
 	chown -R "${username}":"${username}" "${targetdir}"
 	chmod -R 770 "${targetdir}"
-	chmod -R g+s "${targetdir}"
+	setfacl -d -R -m u::rwx "${targetdir}"
+	setfacl -d -R -m g::rwx "${targetdir}"
 	echo "[OK] Ownership & permissions set!"
-	echo ""
-	echo "Adding ${username} group to ${apacheprocess}..."
-	sleep 2
-	usermod -a -G "${username}" "${apacheprocess}"
-	echo "[OK] Added user group to ${apacheprocess}!"
 	echo ""
 	echo "Restarting apache2 to enable group modifications..."
 	sleep 1
@@ -233,7 +205,7 @@ fn_create_vhosts(){
 		vhostexists="1"
 		echo "VirtualHost already exists!"
 		echo "It won't be touched."
-	else	
+	else
 		vhostexists="0"
 		echo "Generating Virtual Host..."
 		touch "${apache_sites}/${domain}.conf"
@@ -243,6 +215,10 @@ fn_create_vhosts(){
 	ServerName ${domain}
 	ServerAlias www.${domain}
 	ServerAdmin admin@${domain}
+
+	<ifmodule mpm_itk_module>
+	AssignUserID $username $username
+	</ifmodule>
 
 	# Directory and rules
 	DocumentRoot ${targetdir}
@@ -296,7 +272,7 @@ fn_conclusion(){
 	echo ""
 	echo "###################### Credits  ########################"
 	echo "UltimateByte: Main development"
-	echo "BassSpleen: Idea and initial script"
+	echo "Quentin Volant: Idea, initial script and apache itk module fork"
 	echo "[OK] We wish you the best!"
 }
 
@@ -306,7 +282,6 @@ fn_check_vars
 fn_check_user_exists
 fn_welcome_prompt
 fn_add_user
-fn_fix_umask
 fn_web_directory
 fn_create_vhosts
 fn_ensite
